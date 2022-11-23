@@ -5,7 +5,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import com.facebook.react.bridge.*;
 import com.facebook.react.bridge.ReadableMap;
@@ -21,6 +21,10 @@ public class RNNordicDfuModule extends ReactContextBaseJavaModule implements Lif
     private final ReactApplicationContext reactContext;
     private Promise mPromise = null;
 
+    private int rebootTime = 0;
+    private int scanTimeout = 2_000;
+    private int prepareDataObjectDelay = 400;
+
     public RNNordicDfuModule(ReactApplicationContext reactContext) {
         super(reactContext);
         reactContext.addLifecycleEventListener(this);
@@ -33,14 +37,25 @@ public class RNNordicDfuModule extends ReactContextBaseJavaModule implements Lif
     @ReactMethod
     public void startDFU(String address, String name, String filePath, ReadableMap options, Promise promise) {
         mPromise = promise;
-        final DfuServiceInitiator starter = new DfuServiceInitiator(address)
-                .setKeepBond(false);
+        final DfuServiceInitiator starter = new DfuServiceInitiator(address);
+
         if (name != null) {
             starter.setDeviceName(name);
         }
-        starter.setPacketsReceiptNotificationsValue(1);
+
+        starter.setKeepBond(false);
+        starter.setForceDfu(true);
+
         starter.setUnsafeExperimentalButtonlessServiceInSecureDfuEnabled(true);
+
+        starter.setPacketsReceiptNotificationsEnabled(true);
+        starter.setPacketsReceiptNotificationsValue(6);
+
+        starter.setNumberOfRetries(5);
+        starter.setMtu(23);
+
         starter.setZip(filePath);
+
         final DfuServiceController controller = starter.start(this.reactContext, DfuService.class);
     }
 
