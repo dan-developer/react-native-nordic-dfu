@@ -51,7 +51,7 @@ public class RNNordicDfuModule extends ReactContextBaseJavaModule implements Lif
         starter.setPacketsReceiptNotificationsEnabled(true);
         starter.setPacketsReceiptNotificationsValue(6);
 
-        starter.setNumberOfRetries(5);
+        starter.setNumberOfRetries(10);
         starter.setMtu(23);
 
         starter.setZip(filePath);
